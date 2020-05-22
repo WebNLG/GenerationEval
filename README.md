@@ -1,4 +1,4 @@
-# The WebNLG Challenge 2020: Evalutation Script
+# The WebNLG Challenge 2020: Evaluation Script
 
 ## Dependencies
 
