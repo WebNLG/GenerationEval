@@ -240,13 +240,14 @@ def bert_score_(references, hypothesis, lng='en'):
         references[i] = [ref for ref in refs if ref.strip() != '']
 
     scores = []
-    for hyp, refs in zip(hypothesis, references):
-        P, R, F1 = score([hyp], [refs], lang=lng)
-        scores.append(F1)
+    P, R, F1 = score(hypothesis, references, lang=lng)
     logging.info('FINISHING TO COMPUTE BERT SCORE...')
     print('FINISHING TO COMPUTE BERT SCORE...')
-    bert = float(sum(scores) / len(scores))
-    return bert
+    P, R, F1 = list(P), list(R), list(F1)
+    F1 = float(sum(F1) / len(F1))
+    P = float(sum(P) / len(P))
+    R = float(sum(R) / len(R))
+    return P, R, F1
 
 
 if __name__ == '__main__':
@@ -305,9 +306,13 @@ if __name__ == '__main__':
         ter = ter_score(references_tok, hypothesis_tok, num_refs)
         values.append(round(ter, 2))
     if 'bert' in metrics:
-        headers.append('BERT-SCORE')
-        bert = bert_score_(references, hypothesis, lng=lng)
-        values.append(round(bert, 2))
+        P, R, F1 = bert_score_(references, hypothesis, lng=lng)
+        headers.append('BERT-SCORE P')
+        values.append(round(P, 2))
+        headers.append('BERT-SCORE R')
+        values.append(round(R, 2))
+        headers.append('BERT-SCORE F1')
+        values.append(round(F1, 2))
     logging.info('FINISHING EVALUATION...')
     print('FINISHING EVALUATION...')
 
