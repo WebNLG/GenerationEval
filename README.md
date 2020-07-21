@@ -23,16 +23,17 @@ To evaluate the performance of your model, run the `eval.py` script which receiv
 usage: eval.py [-h] -R REFERENCE -H HYPOTHESIS [-lng LANGUAGE] [-nr NUM_REFS]
                [-m METRICS] [-nc NCORDER] [-nw NWORDER] [-b BETA]
 
-optional arguments:
+arguments:
   -h, --help            show this help message and exit
   -R REFERENCE, --reference REFERENCE
                         reference translation
   -H HYPOTHESIS, --hypothesis HYPOTHESIS
                         hypothesis translation
+optional arguments:
   -lng LANGUAGE, --language LANGUAGE
-                        evaluated language
+                        evaluated language (default="en")
   -nr NUM_REFS, --num_refs NUM_REFS
-                        number of references
+                        number of references (default=4)
   -m METRICS, --metrics METRICS
                         evaluation metrics to be computed
   -nc NCORDER, --ncorder NCORDER
@@ -42,7 +43,11 @@ optional arguments:
   -b BETA, --beta BETA  chrF metric: beta parameter (default=2)
 ```
 
-An example on how to run to the evaluation script is available in `example.sh`.
+An example on how to run to the evaluation script is available in `example.sh`. For instance, to obtain the BLEU score, METEOR, TER and BERT-Score on a set of hypothesis in comparison with a set of single references in Russian, simply run the following command:
+
+```
+python3 eval.py -R reference_file -H hypothesis_file -lng ru -nr 1 -m bleu,meteor,chrf++,ter,bert
+```
 
 ### Multiple References
 
