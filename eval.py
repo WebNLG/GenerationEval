@@ -32,7 +32,7 @@ Description:
 
     EXAMPLE:
         ENGLISH: 
-            python3 eval.py -R data/en/references/reference -H data/en/hypothesis -nr 4 -m bleu,meteor,chrf++,ter,bert
+            python3 eval.py -R data/en/references/reference -H data/en/hypothesis -nr 4 -m bleu,meteor,chrf++,ter,bert,bleurt
         RUSSIAN:
             python3 eval.py -R data/ru/reference -H data/ru/hypothesis -lng ru -nr 1 -m bleu,meteor,chrf++,ter,bert
 """
@@ -49,6 +49,7 @@ import re
 
 from bert_score import score
 from metrics.chrF import computeChrF
+from metrics.bleurt.bleurt import score as bleurt_score
 from nltk.translate.bleu_score import corpus_bleu, SmoothingFunction
 from razdel import tokenize
 from tabulate import tabulate
@@ -239,15 +240,29 @@ def bert_score_(references, hypothesis, lng='en'):
     for i, refs in enumerate(references):
         references[i] = [ref for ref in refs if ref.strip() != '']
 
-    scores = []
-    P, R, F1 = score(hypothesis, references, lang=lng)
-    logging.info('FINISHING TO COMPUTE BERT SCORE...')
-    print('FINISHING TO COMPUTE BERT SCORE...')
-    P, R, F1 = list(P), list(R), list(F1)
-    F1 = float(sum(F1) / len(F1))
-    P = float(sum(P) / len(P))
-    R = float(sum(R) / len(R))
+    try:
+        P, R, F1 = score(hypothesis, references, lang=lng)
+        logging.info('FINISHING TO COMPUTE BERT SCORE...')
+    #     print('FINISHING TO COMPUTE BERT SCORE...')
+        P, R, F1 = list(P), list(R), list(F1)
+        F1 = float(sum(F1) / len(F1))
+        P = float(sum(P) / len(P))
+        R = float(sum(R) / len(R))
+    except:
+        P, R, F1 = 0, 0, 0
     return P, R, F1
+
+def bleurt(references, hypothesis, num_refs, checkpoint = "metrics/bleurt/bleurt-base-128"):
+    refs, cands = [], []
+    for i, hyp in enumerate(hypothesis):
+        for ref in references[i][:num_refs]:
+            cands.append(hyp)
+            refs.append(ref)
+
+    scorer = bleurt_score.BleurtScorer(checkpoint)
+    scores = scorer.score(refs, cands)
+    scores = [max(scores[i:i+num_refs]) for i in range(0, len(scores), num_refs)]
+    return round(sum(scores) / len(scores), 2)
 
 
 if __name__ == '__main__':
@@ -259,7 +274,7 @@ if __name__ == '__main__':
     argParser.add_argument("-H", "--hypothesis", help="hypothesis translation", required=True)
     argParser.add_argument("-lng", "--language", help="evaluated language", default='en')
     argParser.add_argument("-nr", "--num_refs", help="number of references", type=int, default=4)
-    argParser.add_argument("-m", "--metrics", help="evaluation metrics to be computed", default='bleu,meteor,ter,chrf++,bert')
+    argParser.add_argument("-m", "--metrics", help="evaluation metrics to be computed", default='bleu,meteor,ter,chrf++,bert,bleurt')
     argParser.add_argument("-nc", "--ncorder", help="chrF metric: character n-gram order (default=6)", type=int, default=6)
     argParser.add_argument("-nw", "--nworder", help="chrF metric: word n-gram order (default=2)", type=int, default=2)
     argParser.add_argument("-b", "--beta", help="chrF metric: beta parameter (default=2)", type=float, default=2.0)
@@ -313,6 +328,10 @@ if __name__ == '__main__':
         values.append(round(R, 2))
         headers.append('BERT-SCORE F1')
         values.append(round(F1, 2))
+    if 'bleurt' in metrics and lng == 'en':
+        s = bleurt(references, hypothesis, num_refs)
+        headers.append('BLEURT')
+        values.append(round(s, 2))
     logging.info('FINISHING EVALUATION...')
     print('FINISHING EVALUATION...')
 
