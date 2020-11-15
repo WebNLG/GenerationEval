@@ -281,9 +281,9 @@ def run(refs_path, hyps_path, num_refs, lng='en', metrics='bleu,meteor,chrf++,te
     if 'meteor' in metrics:
         meteor = meteor_score(references_tok, hypothesis_tok, num_refs, lng=lng)
         result['meteor'] = meteor
-    if 'chrF++' in metrics:
+    if 'chrf++' in metrics:
         chrf, _, _, _ = chrF_score(references, hypothesis, num_refs, nworder, ncorder, beta)
-        result['chrF++'] = chrf
+        result['chrf++'] = chrf
     if 'ter' in metrics:
         ter = ter_score(references_tok, hypothesis_tok, num_refs)
         result['ter'] = ter
@@ -343,7 +343,7 @@ if __name__ == '__main__':
         values.append(round(result['meteor'], 2))
     if 'chrf++' in metrics:
         headers.append('chrF++')
-        values.append(round(result['chrF++'], 2))
+        values.append(round(result['chrf++'], 2))
     if 'ter' in metrics:
         headers.append('TER')
         values.append(round(result['ter'], 2))
