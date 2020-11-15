@@ -265,6 +265,41 @@ def bleurt(references, hypothesis, num_refs, checkpoint = "metrics/bleurt/bleurt
     return round(sum(scores) / len(scores), 2)
 
 
+def run(refs_path, hyps_path, num_refs, lng='en', metrics='bleu,meteor,chrf++,ter,bert,bleurt',ncorder=6, nworder=2, beta=2):
+    metrics = metrics.lower().split(',')
+    references, references_tok, hypothesis, hypothesis_tok = parse(refs_path, hyps_path, num_refs, lng)
+    
+    result = {}
+    
+    logging.info('STARTING EVALUATION...')
+    if 'bleu' in metrics:
+        bleu = bleu_score(refs_path, hyps_path, num_refs)
+        result['bleu'] = bleu
+
+        b = bleu_nltk(references_tok, hypothesis_tok)
+        result['bleu_nltk'] = b
+    if 'meteor' in metrics:
+        meteor = meteor_score(references_tok, hypothesis_tok, num_refs, lng=lng)
+        result['meteor'] = meteor
+    if 'chrF++' in metrics:
+        chrf, _, _, _ = chrF_score(references, hypothesis, num_refs, nworder, ncorder, beta)
+        result['chrF++'] = chrf
+    if 'ter' in metrics:
+        ter = ter_score(references_tok, hypothesis_tok, num_refs)
+        result['ter'] = ter
+    if 'bert' in metrics:
+        P, R, F1 = bert_score_(references, hypothesis, lng=lng)
+        result['bert_precision'] = P
+        result['bert_recall'] = R
+        result['bert_f1'] = F1
+    if 'bleurt' in metrics and lng == 'en':
+        s = bleurt(references, hypothesis, num_refs)
+        result['bleurt'] = s
+    logging.info('FINISHING EVALUATION...')
+    
+    return result
+
+
 if __name__ == '__main__':
     FORMAT = '%(levelname)s: %(asctime)-15s - %(message)s'
     logging.basicConfig(filename='eval.log', level=logging.INFO, format=FORMAT)
@@ -282,59 +317,46 @@ if __name__ == '__main__':
     args = argParser.parse_args()
 
     logging.info('READING INPUTS...')
-    print('READING INPUTS...')
     refs_path = args.reference
     hyps_path = args.hypothesis
     lng = args.language
     num_refs = args.num_refs
-    metrics = args.metrics.lower().split(',')
+    metrics = args.metrics#.lower().split(',')
 
     nworder = args.nworder
     ncorder = args.ncorder
     beta = args.beta
     logging.info('FINISHING TO READ INPUTS...')
-    print('FINISHING TO READ INPUTS...')
 
-    references, references_tok, hypothesis, hypothesis_tok = parse(refs_path, hyps_path, num_refs, lng)
-
-    logging.info('STARTING EVALUATION...')
-    print('STARTING EVALUATION...')
+    result = run(refs_path=refs_path, hyps_path=hyps_path, num_refs=num_refs, lng=lng, metrics=metrics, ncorder=ncorder, nworder=nworder, beta=beta)
+    
+    metrics = metrics.lower().split(',')
     headers, values = [], []
     if 'bleu' in metrics:
         headers.append('BLEU')
-        bleu = bleu_score(refs_path, hyps_path, num_refs)
-        values.append(bleu)
+        values.append(result['bleu'])
 
         headers.append('BLEU NLTK')
-        b = bleu_nltk(references_tok, hypothesis_tok)
-        values.append(round(b, 2))
+        values.append(round(result['bleu_nltk'], 2))
     if 'meteor' in metrics:
         headers.append('METEOR')
-        meteor = meteor_score(references_tok, hypothesis_tok, num_refs, lng=lng)
-        values.append(round(meteor, 2))
+        values.append(round(result['meteor'], 2))
     if 'chrf++' in metrics:
         headers.append('chrF++')
-        chrf, _, _, _ = chrF_score(references, hypothesis, num_refs, nworder, ncorder, beta)
-        values.append(round(chrf, 2))
+        values.append(round(result['chrF++'], 2))
     if 'ter' in metrics:
         headers.append('TER')
-        ter = ter_score(references_tok, hypothesis_tok, num_refs)
-        values.append(round(ter, 2))
+        values.append(round(result['ter'], 2))
     if 'bert' in metrics:
-        P, R, F1 = bert_score_(references, hypothesis, lng=lng)
         headers.append('BERT-SCORE P')
-        values.append(round(P, 2))
+        values.append(round(result['bert_precision'], 2))
         headers.append('BERT-SCORE R')
-        values.append(round(R, 2))
+        values.append(round(result['bert_recall'], 2))
         headers.append('BERT-SCORE F1')
-        values.append(round(F1, 2))
+        values.append(round(result['bert_f1'], 2))
     if 'bleurt' in metrics and lng == 'en':
-        s = bleurt(references, hypothesis, num_refs)
         headers.append('BLEURT')
-        values.append(round(s, 2))
-    logging.info('FINISHING EVALUATION...')
-    print('FINISHING EVALUATION...')
+        values.append(round(result['bleurt'], 2))
 
     logging.info('PRINTING RESULTS...')
-    print('PRINTING RESULTS...')
     print(tabulate([values], headers=headers))
