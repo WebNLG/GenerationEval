@@ -50,6 +50,7 @@ import re
 from bert_score import score
 from metrics.chrF import computeChrF
 from metrics.bleurt.bleurt import score as bleurt_score
+sys.argv = sys.argv[:1]
 from nltk.translate.bleu_score import corpus_bleu, SmoothingFunction
 from razdel import tokenize
 from tabulate import tabulate
