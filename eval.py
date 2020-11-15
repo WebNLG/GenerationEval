@@ -37,6 +37,7 @@ Description:
             python3 eval.py -R data/ru/reference -H data/ru/hypothesis -lng ru -nr 1 -m bleu,meteor,chrf++,ter,bert
 """
 
+import sys
 import argparse
 import codecs
 import copy
