@@ -1,0 +1,16 @@
+{
+    "Title": "Rate Correspondence Between Data and Text [qualification HIT]",
+    "Description": "You are given a piece of data and a text that describes data. Also, you are provided with statements about the text. Please indicate the extent to which you agree with each of these statements using the sliders.",
+    "Keywords": "evaluation, text, data, rating",
+    "Reward": 0.10,
+    "LifetimeInSeconds": 604800,
+    "AssignmentDurationInSeconds": 1800,
+    "AutoApprovalDelayInSeconds": 86400,
+    "FrameHeight": 20000,
+    "MaxAssignments": 1,
+    "QualificationId": "3NIXU43KF5CRUAEVU5B0PLYH9B1SVD",
+    "QualificationComparator": "DoesNotExist",
+    "Country": ["US", "GB", "AU", "IE", "CA"],
+    "HitsApproved": 5000,
+    "PercentApproved": 95
+}
