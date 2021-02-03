@@ -1,4 +1,4 @@
-# WebNLG Challenge 2020: Evaluation Script
+# WebNLG Challenge 2020: Evaluation Script for RDF-to-Text
 
 This script evaluates RDF-to-text generation for the [WebNLG Challenge 2020](https://webnlg-challenge.loria.fr/challenge_2020/). Generation is evaluated with automatic metrics: BLEU, METEOR, chrF++, TER, BERTScore, and BLEURT (for English only).
 
