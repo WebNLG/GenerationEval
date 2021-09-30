@@ -50,3 +50,37 @@ An example on how to run to the evaluation script is available in `example.sh`.
 ### Multiple References
 
 In case of multiple references, they have to be stored in separated files and named reference0, reference1, reference2, etc.
+
+Please have a look here: https://github.com/WebNLG/GenerationEval/tree/master/data/en/references
+
+References for WebNLG can be generated using `generate_references.py` from this repo: https://gitlab.com/webnlg/corpus-reader
+
+Example of the file format:
+
+There are three instances `a-text`, `b-text`, `c-text` with 2, 3, and 1 reference respectively.
+```python
+a-text: {a-ref1, a-ref2}
+b-text: {b-ref1, b-ref2, b-ref3}
+c-text: {c-ref1}
+```
+Then you need to create 3 files: `reference0`, `reference1`, `reference2` with the following content.
+
+reference0:
+```
+a-ref1
+b-ref1
+c-ref1
+```
+reference1 (the third line is empty):
+```
+a-ref2
+b-ref2
+
+```
+
+reference2 (the first and third lines are empty):
+```
+
+b-ref3
+
+```
